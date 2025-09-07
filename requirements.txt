@@ -1,0 +1,22 @@
+<<<<<<< HEAD
+flask
+flask-cors
+python-dotenv
+google-generativeai
+fpdf2
+qrcode[pil]
+=======
+<<<<<<< HEAD
+Flask==2.3.3
+flask-cors
+python-dotenv
+google-generativeai
+=======
+flask
+flask-cors
+python-dotenv
+google-generativeai
+fpdf2
+qrcode[pil]
+>>>>>>> 7f68d9e (🚀 Primeiro commit: FTJ 2.0 completa com login, PDF, voz, QR Code e impressão)
+>>>>>>> 5f09d40 (resolve conflitos entre histórico local e remoto)

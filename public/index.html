@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeto Cidadão Entende</title>
+    <!-- Google Fonts - Fonte Arvo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&display=swap" rel="stylesheet">
+    <!-- PDF.js via CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        window.pdfjsLib = window["pdfjs-dist/build/pdf"];
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        /* Estilos da tela de login */
+        #login-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: #f4f4f4;
+            padding: 20px;
+            text-align: center;
+        }
+        #login-container > div {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        #login-container input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        #login-container button {
+            background: #0073e6;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        #login-error {
+            color: #d9534f;
+            margin-top: 10px;
+            display: none;
+        }
+        /* Conteúdo principal (inicialmente escondido) */
+        #main-content {
+            display: none;
+        }
+        header {
+            background-color: #002b5c;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
+        header img {
+            height: 80px;
+            margin-bottom: 10px;
+        }
+        header h1 {
+            margin: 5px 0;
+            font-size: 28px;
+            font-family: 'Arvo', serif;
+        }
+        header h2 {
+            margin: 5px 0;
+            font-size: 22px;
+            font-weight: normal;
+        }
+        header p {
+            font-style: italic;
+            margin: 10px 0 20px;
+        }
+        nav {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            border-radius: 5px;
+            border: none;
+            background-color: #0073e6;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #005bb5;
+        }
+        #editor {
+            background-color: white;
+            margin: 30px auto;
+            padding: 20px;
+            max-width: 800px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            display: none;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+        }
+        .documento-formatado {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 25px;
+            font-family: 'Arial', sans-serif;
+            font-size: 18px;
+            line-height: 1.8;
+            text-align: justify;
+            white-space: normal;
+            word-wrap: break-word;
+            margin-top: 15px;
+            border-radius: 6px;
+        }
+        .documento-formatado p {
+            text-indent: 30px;
+            margin: 0 0 15px 0;
+        }
+        .documento-formatado strong {
+            color: #002b5c;
+        }
+        #resultados-container hr {
+            border: 1px solid #ccc;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+  <!-- TELA DE LOGIN -->
+  <div id="login-container">
+    <div>
+      <h2 style="color: #002b5c; margin-top: 0;">🔐 Acesso Restrito</h2>
+      <p>Por favor, faça login para acessar o sistema.</p>
+      <input type="email" id="email" placeholder="E-mail" autocomplete="email" />
+      <input type="password" id="password" placeholder="Senha" autocomplete="current-password" />
+      <button id="login-btn">Entrar</button>
+      <p id="login-error"></p>
+    </div>
+  </div>
+  <!-- CONTEÚDO PRINCIPAL -->
+  <div id="main-content">
+    <header>
+      <img src="img/logo-bn1.png" alt="Logo BM">
+      <h1>Boas Notícias Comunicação Estratégica</h1>
+      <h2>Projeto Cidadão Entende</h2>
+      <p>Descomplicando o direito para o cidadão comum</p>
+      <nav>
+        <button id="btn-criar">SIMPLIFICAR DOCUMENTO JURÍDICO</button>
+      </nav>
+    </header>
+    <!-- Mensagem de boas-vindas personalizada -->
+    <div id="boas-vindas" style="text-align: center; max-width: 800px; margin: 30px auto; padding: 20px; background: #e7f4ff; border: 1px solid #b3d9ff; border-radius: 8px; color: #002b5c;">
+      <h3 id="titulo-boas-vindas">🎉 Bem-vindo ao Projeto Cidadão Entende!</h3>
+      <p style="font-size: 18px; line-height: 1.6;">
+        Você está logado com sucesso. <br>
+        Para começar, clique no botão <strong>"SIMPLIFICAR DOCUMENTO JURÍDICO"</strong> acima.
+      </p>
+      <p style="font-style: italic; margin-top: 15px; color: #005bb5;">
+        Transformando linguagem jurídica em direitos reais.
+      </p>
+    </div>
+    <section id="editor" style="display: none;">
+      <h3>Área de Edição</h3>
+      <p>
+        <strong>Destinatário (opcional):</strong><br>
+        <input type="text" id="destinatario" placeholder="Nome completo do destinatário" />
+      </p>
+      <p>
+        <strong>Upload de PDF (opcional):</strong><br>
+        <input type="file" id="pdf-upload" accept=".pdf" />
+        <small>Carregue um PDF para extrair o texto automaticamente.</small>
+      </p>
+      <p>
+        <strong>Texto Jurídico (para tradução):</strong><br>
+        <textarea 
+          id="corpo_texto" 
+          rows="12" 
+          placeholder="Cole aqui o texto jurídico que deseja traduzir para linguagem simples..."></textarea>
+      </p>
+      <button id="btn-traduzir" style="background: #0073e6;">🗣️ Traduzir para Linguagem Simples</button>
+      <button id="btn-imprimir" style="background: #28a745; display: none; margin-left: 10px;">🖨️ Imprimir Documentos</button>
+      <button id="btn-limpar" style="background: #6c757d; display: none; margin-left: 10px;">🗑️ Limpar Tudo</button>
+      <div id="resultados-container" style="margin-top: 20px;"></div>
+    </section>
+  </div>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script>
+    // 🔥 Substitua com suas credenciais do Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAs3_h4hicHYN61uDLVsl6G0MON0qu5gcc",
+      authDomain: "cidadaoentende-clientes.firebaseapp.com",
+      projectId: "cidadaoentende-clientes",
+      storageBucket: "cidadaoentende-clientes.firebasestorage.app",
+      messagingSenderId: "894833738591",
+      appId: "1:894833738591:web:3b496f88c96146d6666cea",
+      measurementId: "G-XS2VEDD3CV"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    // Elementos
+    const loginContainer = document.getElementById('login-container');
+    const mainContent = document.getElementById('main-content');
+    const tituloBoasVindas = document.getElementById('titulo-boas-vindas');
+    const loginBtn = document.getElementById('login-btn');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const loginError = document.getElementById('login-error');
+    // Sempre mostra login
+    loginContainer.style.display = 'flex';
+    mainContent.style.display = 'none';
+    auth.onAuthStateChanged(user => {
+      if (user && !emailInput.value) emailInput.value = user.email;
+    });
+    loginBtn.addEventListener('click', () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      if (!email || !password) {
+        loginError.textContent = 'Preencha e-mail e senha.';
+        loginError.style.display = 'block';
+        return;
+      }
+      auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
+        .then(() => auth.signInWithEmailAndPassword(email, password))
+        .then((userCredential) => {
+          const user = userCredential.user;
+          loginError.style.display = 'none';
+          loginContainer.style.display = 'none';
+          mainContent.style.display = 'block';
+          const nomeUsuario = user.email.split('@')[0];
+          const primeiroNome = nomeUsuario
+            .split(/[\.\_\-\d]+/)
+            .filter(Boolean)[0];
+          if (primeiroNome) {
+            const nomeFormatado = primeiroNome.charAt(0).toUpperCase() + primeiroNome.slice(1).toLowerCase();
+            const termosNeutros = ['Jurista', 'Usuario', 'User', 'Admin', 'Teste', 'Temp', 'Guest', 'Equipe', 'Suporte'];
+            const nomesFemininos = ['Ana', 'Maria', 'Julia', 'Carla', 'Fernanda', 'Patricia', 'Luisa', 'Camila', 'Mariana', 'Beatriz', 'Larissa', 'Renata', 'Amanda', 'Tatiana', 'Silvia', 'Sandra', 'Daniela', 'Vanessa', 'Natasha', 'Monica', 'Paula', 'Luiza', 'Gabriela', 'Rafaela', 'Priscila', 'Simone', 'Andrea', 'Claudia', 'Eliane', 'Sheila', 'Adriana', 'Roberta', 'Monique'];
+            let saudacao;
+            if (termosNeutros.includes(nomeFormatado)) {
+              saudacao = `🎉 Bem-vindo(a), <strong>${nomeFormatado}</strong>!`;
+            } else if (nomesFemininos.includes(nomeFormatado)) {
+              saudacao = `🎉 Bem-vinda, <strong>${nomeFormatado}</strong>!`;
+            } else {
+              saudacao = `🎉 Bem-vindo, <strong>${nomeFormatado}</strong>!`;
+            }
+            tituloBoasVindas.innerHTML = saudacao;
+          }
+        })
+        .catch(error => {
+          let mensagem;
+          switch (error.code) {
+            case 'auth/invalid-email': mensagem = 'O e-mail fornecido é inválido.'; break;
+            case 'auth/user-not-found': mensagem = 'Nenhum usuário encontrado com este e-mail.'; break;
+            case 'auth/wrong-password': mensagem = 'Senha incorreta. Verifique e tente novamente.'; break;
+            case 'auth/invalid-login-credentials': mensagem = 'E-mail ou senha inválidos.'; break;
+            case 'auth/network-request-failed': mensagem = 'Erro de conexão. Verifique sua internet.'; break;
+            case 'auth/too-many-requests': mensagem = 'Muitas tentativas falhas. Tente novamente mais tarde.'; break;
+            default: mensagem = 'Erro ao fazer login. Tente novamente.';
+          }
+          loginError.textContent = mensagem;
+          loginError.style.display = 'block';
+        });
+    });
+    passwordInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') loginBtn.click();
+    });
+  </script>
+  <!-- Funções principais -->
+  <script>
+    // --- Controle de voz ---
+    let isSpeaking = false;
+
+    function lerEmVozAlta() {
+      if (!('speechSynthesis' in window)) {
+        alert('Seu navegador não suporta leitura em voz alta.');
+        return;
+      }
+
+      const textoSimples = document.getElementById('texto-traduzido')?.innerText || '';
+      if (!textoSimples) return;
+
+      const textoLimpo = textoSimples
+        .replace(/\*\*/g, '')
+        .replace(/#/g, '')
+        .replace(/```[\s\S]*?```/g, '')
+        .replace(/`/g, '')
+        .replace(/\n+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      if (!textoLimpo) return;
+
+      const utter = new SpeechSynthesisUtterance(textoLimpo);
+      utter.lang = 'pt-BR';
+      utter.rate = 0.9;
+      utter.pitch = 1;
+
+      const voices = speechSynthesis.getVoices();
+      utter.voice = voices.find(v => v.lang.includes('pt-BR')) || voices[0];
+
+      utter.onstart = () => {
+        document.getElementById('btn-voz').textContent = '⏸️ Pausar Leitura';
+        document.getElementById('btn-parar').style.display = 'inline-block';
+        isSpeaking = true;
+      };
+
+      utter.onpause = () => {
+        document.getElementById('btn-voz').textContent = '▶️ Retomar Leitura';
+        isSpeaking = false;
+      };
+
+      utter.onresume = () => {
+        document.getElementById('btn-voz').textContent = '⏸️ Pausar Leitura';
+        isSpeaking = true;
+      };
+
+      utter.onend = () => {
+        document.getElementById('btn-voz').textContent = '🔊 Ouvir Explicação em Voz Alta';
+        document.getElementById('btn-parar').style.display = 'none';
+        isSpeaking = false;
+        window.speechSynthesis.cancel();
+      };
+
+      utter.onerror = () => {
+        alert('Erro ao tentar ler o texto.');
+        document.getElementById('btn-voz').textContent = '🔊 Ouvir Explicação em Voz Alta';
+        document.getElementById('btn-parar').style.display = 'none';
+        isSpeaking = false;
+      };
+
+      speechSynthesis.speak(utter);
+      document.getElementById('btn-voz').disabled = true;
+      setTimeout(() => {
+        if (isSpeaking) {
+          document.getElementById('btn-voz').disabled = false;
+        }
+      }, 500);
+    }
+
+    function pararLeitura() {
+      window.speechSynthesis.cancel();
+      document.getElementById('btn-voz').textContent = '🔊 Ouvir Explicação em Voz Alta';
+      document.getElementById('btn-voz').disabled = false;
+      document.getElementById('btn-parar').style.display = 'none';
+      isSpeaking = false;
+    }
+
+    // --- MOSTRAR A ÁREA DE EDIÇÃO ---
+    document.getElementById('btn-criar').addEventListener('click', () => {
+      document.getElementById('editor').style.display = 'block';
+      document.getElementById('btn-criar').disabled = true;
+      document.getElementById('btn-criar').textContent = '✅ Documento aberto';
+      document.getElementById('boas-vindas').style.display = 'none';
+    });
+
+    // --- LER PDF ---
+    async function lerPdf(file) {
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          const typedarray = new Uint8Array(e.target.result);
+          const pdf = await pdfjsLib.getDocument(typedarray).promise;
+          let textoCompleto = '';
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            const pageText = content.items.map(item => item.str).join(' ');
+            textoCompleto += pageText + ' ';
+          }
+          document.getElementById('corpo_texto').value = textoCompleto.trim();
+          alert(`✅ PDF carregado! ${pdf.numPages} página(s) extraída(s).`);
+        } catch (error) {
+          console.error('Erro ao ler PDF:', error);
+          alert('❌ Erro ao processar o PDF. Verifique se é um PDF com texto.');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    // --- TRADUZIR DOCUMENTO ---
+    async function traduzirDocumento() {
+      const corpo = document.getElementById('corpo_texto');
+      const btn = document.getElementById('btn-traduzir');
+      const resultados = document.getElementById('resultados-container');
+      if (!corpo || !corpo.value.trim()) {
+        alert('⚠️ O corpo do texto não pode estar vazio.');
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = '🔄 Traduzindo...';
+      resultados.innerHTML = '<p style="color: #0073e6;">Processando com IA...</p>';
+      const destinatario = document.getElementById('destinatario').value || 'Não informado';
+      const textoCompleto = `DESTINATÁRIO: ${destinatario}\n${corpo.value}`;
+      try {
+        const res = await fetch('/traduzir', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ texto: textoCompleto }),
+        });
+        if (!res.ok) throw new Error('Erro no servidor');
+        const data = await res.json();
+        const docOficial = textoCompleto.replace(/\n/g, '<br>');
+        const docSimplificado = (data.traduzido || 'Nenhuma tradução retornada.')
+          .replace(/^```markdown\n?/gm, '')
+          .replace(/```$/g, '')
+          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\n/g, '<br>')
+          .replace(/<br><br>/g, '</p><p>')
+          .replace(/^(.+)$/gm, '<p>$1</p>');
+
+        window.qrUrlAtual = data.qr_url || '#';
+
+        resultados.innerHTML = `
+          <hr>
+          <h3 style="color: #002b5c;">📄 Documento Oficial (Original)</h3>
+          <div id="texto-oficial" class="documento-formatado">${docOficial}</div>
+          <hr>
+          <h3 style="color: #002b5c;">🗣️ Explicação em Linguagem Simples</h3>
+          <div id="texto-traduzido" class="documento-formatado">${docSimplificado}</div>
+          <div style="margin-top: 15px;">
+            <button id="btn-voz" style="padding: 10px 15px; font-size: 16px; background: #6f42c1; color: white; border: none; border-radius: 5px; cursor: pointer;">
+              🔊 Ouvir Explicação em Voz Alta
+            </button>
+            <button id="btn-parar" style="padding: 10px 15px; font-size: 16px; background: #d9534f; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px; display: none;">
+              ⏹️ Parar Leitura
+            </button>
+          </div>
+          <div style="margin-top: 30px; text-align: center;">
+            <p><strong>📱 Escaneie para ouvir em voz alta:</strong></p>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.qr_url)}" alt="QR Code">
+            <p><a href="${data.qr_url}" target="_blank">${data.qr_url}</a></p>
+          </div>
+        `;
+        document.getElementById('btn-imprimir').style.display = 'inline-block';
+        document.getElementById('btn-limpar').style.display = 'inline-block';
+      } catch (err) {
+        console.error('Erro:', err);
+        resultados.innerHTML = '<p style="color: #d9534f;">❌ Erro ao traduzir. Veja o console.</p>';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🗣️ Traduzir para Linguagem Simples';
+      }
+    }
+
+    // --- IMPRIMIR DOCUMENTOS (CORRIGIDO PARA INCLUIR QR CODE) ---
+    function imprimirDocumentos() {
+      const docOficialEl = document.getElementById('texto-oficial');
+      const docTraduzidoEl = document.getElementById('texto-traduzido');
+      const qrCodeImg = document.querySelector('#resultados-container img[alt="QR Code"]');
+      const qrLink = document.querySelector('#resultados-container a');
+
+      if (!docOficialEl || !docTraduzidoEl) {
+        alert('❌ Não há documentos para imprimir.');
+        return;
+      }
+
+      const janela = window.open('', '_blank');
+      janela.document.write(`
+        <html>
+        <head>
+          <title>Impressão - Cidadão Entende</title>
+          <style>
+            body { font-family: 'Arial', sans-serif; padding: 30px; background: white; margin: 0; }
+            h1 { font-size: 18px; text-align: center; color: #002b5c; margin-bottom: 20px; }
+            .documento-formatado {
+              background-color: #fff;
+              border: 1px solid #ddd;
+              padding: 25px;
+              font-family: 'Arial', sans-serif;
+              font-size: 18px;
+              line-height: 1.8;
+              text-align: justify;
+              white-space: normal;
+              word-wrap: break-word;
+              margin-top: 15px;
+              border-radius: 6px;
+            }
+            .documento-formatado p { text-indent: 30px; margin: 0 0 15px 0; }
+            .documento-formatado strong { color: #002b5c; }
+            hr { border: 1px solid #ccc; margin: 20px 0; }
+            .qr-section {
+              text-align: center;
+              margin-top: 30px;
+            }
+            .qr-section img {
+              width: 200px;
+              height: 200px;
+            }
+            .qr-section a {
+              font-size: 14px;
+              color: #0073e6;
+              word-break: break-all;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>📄 Documento Oficial</h1>
+          <div class="documento-formatado">${docOficialEl.innerHTML}</div>
+          <h1>🗣️ Explicação em Linguagem Simples</h1>
+          <div class="documento-formatado">${docTraduzidoEl.innerHTML}</div>
+          <div class="qr-section">
+            <p><strong>📱 Escaneie para ouvir em voz alta:</strong></p>
+            <img src="${qrCodeImg?.src || ''}" alt="QR Code">
+            <p><a href="${qrLink?.href || '#'}" target="_blank">${qrLink?.textContent || ''}</a></p>
+          </div>
+        </body>
+        </html>
+      `);
+      janela.document.close();
+      janela.onload = () => janela.print();
+    }
+
+    // --- LIMPAR TUDO ---
+    function limparTudo() {
+      document.getElementById('destinatario').value = '';
+      document.getElementById('corpo_texto').value = '';
+      document.getElementById('resultados-container').innerHTML = '';
+      document.getElementById('btn-imprimir').style.display = 'none';
+      document.getElementById('btn-limpar').style.display = 'none';
+      document.getElementById('btn-criar').disabled = false;
+      document.getElementById('btn-criar').textContent = 'SIMPLIFICAR DOCUMENTO JURÍDICO';
+      if (document.getElementById('pdf-upload')) document.getElementById('pdf-upload').value = '';
+      document.getElementById('boas-vindas').style.display = 'block';
+      document.getElementById('editor').style.display = 'none';
+    }
+
+    // --- EVENTOS ---
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('btn-criar').addEventListener('click', () => {
+        document.getElementById('editor').style.display = 'block';
+        document.getElementById('btn-criar').disabled = true;
+        document.getElementById('btn-criar').textContent = '✅ Documento aberto';
+        document.getElementById('boas-vindas').style.display = 'none';
+      });
+
+      document.getElementById('btn-traduzir').addEventListener('click', traduzirDocumento);
+      document.getElementById('btn-imprimir').addEventListener('click', imprimirDocumentos);
+      document.getElementById('btn-limpar').addEventListener('click', () => {
+        if (confirm('Tem certeza que deseja limpar tudo?')) limparTudo();
+      });
+
+      document.addEventListener('click', (e) => {
+        if (e.target.id === 'btn-voz') {
+          const btn = e.target;
+          if (btn.textContent === '⏸️ Pausar Leitura') {
+            speechSynthesis.pause();
+            return;
+          }
+          if (btn.textContent === '▶️ Retomar Leitura') {
+            speechSynthesis.resume();
+            return;
+          }
+          lerEmVozAlta();
+        }
+        if (e.target.id === 'btn-parar') {
+          pararLeitura();
+        }
+      });
+
+      document.getElementById('pdf-upload').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file && file.type === 'application/pdf') {
+          lerPdf(file);
+        } else {
+          alert('Por favor, selecione um arquivo PDF válido.');
+        }
+      });
+
+      if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = () => {};
+      }
+    });
+  </script>
+</body>
+</html>
