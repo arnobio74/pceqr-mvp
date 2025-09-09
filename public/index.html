@@ -349,13 +349,6 @@
         window.speechSynthesis.cancel();
       };
 
-      utter.onerror = () => {
-        alert('Erro ao tentar ler o texto.');
-        document.getElementById('btn-voz').textContent = '🔊 Ouvir Explicação em Voz Alta';
-        document.getElementById('btn-parar').style.display = 'none';
-        isSpeaking = false;
-      };
-
       speechSynthesis.speak(utter);
       document.getElementById('btn-voz').disabled = true;
       setTimeout(() => {
