@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import os
 import google.generativeai as genai
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Carrega variáveis do .env
 load_dotenv()
@@ -21,7 +21,7 @@ if not API_KEY:
 genai.configure(api_key=API_KEY)
 model = genai.GenerativeModel("gemini-1.5-flash")
 
-# Armazenamento temporário em memória (funciona no Render)
+# Armazenamento temporário em memória
 traducoes_armazenadas = {}
 
 def traduzir_com_gemini(texto_juridico):
@@ -56,9 +56,9 @@ def api_traduzir():
 
     # Gera token
     token = str(uuid.uuid4())[:8]
-    qr_url = f"https://pce.boasnoticiasconsultoria.com.br/ver/{token}"
+    qr_url = f"https://pce1.boasnoticiasconsultoria.com.br/ver/{token}"
 
-    # Armazena tradução (em memória)
+    # Armazena tradução
     traducoes_armazenadas[token] = {
         "original": texto_original,
         "traduzido": texto_traduzido,
@@ -76,6 +76,11 @@ def ver_traducao(token):
     dados = traducoes_armazenadas.get(token)
     if not dados:
         return "<h1>Documento não encontrado ou expirado</h1>", 404
+
+    # Verifica expiração (24h)
+    if (datetime.now() - dados["created_at"]) > timedelta(hours=24):
+        traducoes_armazenadas.pop(token, None)
+        return "<h1>Link expirado após 24 horas</h1>", 410
 
     # Limpa e formata o texto
     texto = dados['traduzido']
