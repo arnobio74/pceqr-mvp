@@ -147,58 +147,65 @@ def ver_traducao(token):
     <button id="btn-parar" style="background: #d9534f; display: none;">⏹️ Parar Leitura</button>
 
     <script>
-        document.getElementById('btn-voz').addEventListener('click', () => {{
-            const btn = document.getElementById('btn-voz');
-            const texto = document.querySelector('.documento-formatado').innerText;
-            if (!texto.trim()) return;
+    let utterance = null;
+    let isPaused = false;
 
-            if (btn.textContent === '⏸️ Pausar') {{
-                speechSynthesis.pause();
-                return;
-            }}
-            if (btn.textContent === '▶️ Retomar') {{
-                speechSynthesis.resume();
-                return;
-            }}
+    document.getElementById('btn-voz').addEventListener('click', () => {
+        const btn = document.getElementById('btn-voz');
+        const texto = document.querySelector('.documento-formatado').innerText;
+        if (!texto.trim()) return;
 
-            if (speechSynthesis.speaking) {{
-                speechSynthesis.cancel();
-            }}
+        // Se já tem uma fala em andamento
+        if (utterance && !isPaused) {
+            // Pausa
+            window.speechSynthesis.pause();
+            btn.textContent = '▶️ Retomar';
+            isPaused = true;
+            return;
+        }
 
-            const utter = new SpeechSynthesisUtterance(texto);
-            utter.lang = 'pt-BR';
-            utter.rate = 0.9;
-            utter.pitch = 1;
+        if (utterance && isPaused) {
+            // Retoma
+            window.speechSynthesis.resume();
+            btn.textContent = '⏸️ Pausar';
+            isPaused = false;
+            return;
+        }
 
-            utter.onstart = () => {{
-                btn.textContent = '⏸️ Pausar';
-                document.getElementById('btn-parar').style.display = 'inline-block';
-            }};
+        // Inicia nova leitura
+        utterance = new SpeechSynthesisUtterance(texto);
+        utterance.lang = 'pt-BR';
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
 
-            utter.onpause = () => {{
-                btn.textContent = '▶️ Retomar';
-            }};
-
-            utter.onend = () => {{
-                btn.textContent = '🔊 Ouvir Explicação em Voz Alta';
-                document.getElementById('btn-parar').style.display = 'none';
-            }};
-
-            utter.onerror = () => {{
-                alert('Erro ao tentar ler o texto.');
-                btn.textContent = '🔊 Ouvir Explicação em Voz Alta';
-                document.getElementById('btn-parar').style.display = 'none';
-            }};
-
-            speechSynthesis.speak(utter);
-        }});
-
-        document.getElementById('btn-parar').addEventListener('click', () => {{
-            speechSynthesis.cancel();
+        utterance.onend = () => {
             document.getElementById('btn-voz').textContent = '🔊 Ouvir Explicação em Voz Alta';
             document.getElementById('btn-parar').style.display = 'none';
-        }});
-    </script>
+            isPaused = false;
+            utterance = null;
+        };
+
+        utterance.onerror = () => {
+            alert('Erro ao tentar ler o texto.');
+            document.getElementById('btn-voz').textContent = '🔊 Ouvir Explicação em Voz Alta';
+            document.getElementById('btn-parar').style.display = 'none';
+            isPaused = false;
+            utterance = null;
+        };
+
+        window.speechSynthesis.speak(utterance);
+        btn.textContent = '⏸️ Pausar';
+        document.getElementById('btn-parar').style.display = 'inline-block';
+    });
+
+    document.getElementById('btn-parar').addEventListener('click', () => {
+        window.speechSynthesis.cancel();
+        document.getElementById('btn-voz').textContent = '🔊 Ouvir Explicação em Voz Alta';
+        document.getElementById('btn-parar').style.display = 'none';
+        isPaused = false;
+        utterance = null;
+    });
+</script>
 </body>
 </html>
 """
